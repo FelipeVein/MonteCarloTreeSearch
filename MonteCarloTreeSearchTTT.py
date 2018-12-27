@@ -34,28 +34,28 @@ class Tictactoe():
 
 		if(state.state[0] == state.state[1] and state.state[0] == state.state[2] and state.state[0] != 0):
 			#win
-			return state.state[0]
+			return state.state[0]# retorna 1 se for o player 1 (computador), -1 se for o player -1 (humano)
 		elif(state.state[3] == state.state[4] and state.state[3] == state.state[5] and state.state[3] != 0):
 			#win
-			return state.state[3]
+			return state.state[3]# retorna 1 se for o player 1 (computador), -1 se for o player -1 (humano)
 		elif(state.state[6] == state.state[7] and state.state[6] == state.state[8] and state.state[6] != 0):
 			#win
-			return state.state[6]
+			return state.state[6]# retorna 1 se for o player 1 (computador), -1 se for o player -1 (humano)
 		elif(state.state[0] == state.state[4] and state.state[0] == state.state[8] and state.state[0] != 0):
 			#win
-			return state.state[0]
+			return state.state[0]# retorna 1 se for o player 1 (computador), -1 se for o player -1 (humano)
 		elif(state.state[2] == state.state[4] and state.state[2] == state.state[6] and state.state[2] != 0):
 			#win
-			return state.state[2]
+			return state.state[2]# retorna 1 se for o player 1 (computador), -1 se for o player -1 (humano)
 		elif(state.state[0] == state.state[3] and state.state[0] == state.state[6] and state.state[0] != 0):
 			#win
-			return state.state[0]
+			return state.state[0]# retorna 1 se for o player 1 (computador), -1 se for o player -1 (humano)
 		elif(state.state[1] == state.state[4] and state.state[1] == state.state[7] and state.state[1] != 0):
 			#win
-			return state.state[1]
+			return state.state[1]# retorna 1 se for o player 1 (computador), -1 se for o player -1 (humano)
 		elif(state.state[2] == state.state[5] and state.state[2] == state.state[8] and state.state[2] != 0):
 			#win
-			return state.state[2]
+			return state.state[2] # retorna 1 se for o player 1 (computador), -1 se for o player -1 (humano)
 		elif(flag == 1):
 			#still not finished
 			return -2
@@ -108,6 +108,10 @@ class Node():
 		else:
 			return False
 
+	def removeAction(self,action):
+		self.actions_to_be_explored = self.actions_to_be_explored[:]
+		self.actions_to_be_explored.remove(action)
+
 
 def backProp(node,reward):
 	while(node!=None):
@@ -115,18 +119,31 @@ def backProp(node,reward):
 		node = node.parent
 
 def treePolicy(node):
+	'''
 	if(not node.fullyExpanded()):
 		if(len(node.children) > 0 and random.uniform(0,1) < .5):
 			return selectChild(node)
 		else:
 			return expand(node)
 	else:
-		return selectChild(node)
+		return selectChild(node)'''
+	while(simulatedGame.checkWin(node.state) == -2): #terminal state
+		if len(node.children) == 0:
+			return expand(node)
+		elif random.uniform(0,1) < .5:
+			node = selectChild(node)
+		else:
+			if(not node.fullyExpanded()):
+				return expand(node)
+			else:
+				node = selectChild(node)
+	return node
 
 def expand(node):
 	global simulatedGame
 	if(len(node.actions_to_be_explored) > 0):
 		action = random.choice(node.actions_to_be_explored)
+		node.removeAction(action)
 		next_state = simulatedGame.act(node.state,action)
 		newChild = Node(next_state,parent=node,action=action)
 		node.addChild(newChild)
@@ -137,7 +154,7 @@ def expand(node):
 
 
 
-def selectChild(node,C=1):
+def selectChild(node,C=10):
 	# Selecionar pela distribuicao de probabilidade do score
 	#scores = []
 	#scoret = 0
@@ -152,10 +169,13 @@ def selectChild(node,C=1):
 
 	# Selecionar o melhor
 
-	bestScore = 0.0
+	bestScore = -100000.0
 	bestChildren = []
 	for child in node.children:
 		score = child.reward/float(child.visits) + C * math.sqrt(2.0*math.log(node.visits)/float(child.visits))
+		if(C == 0):
+			score = child.reward/float(child.visits)
+			print('acao: {} - visitas: {} - reward: {} - score: {}'.format(child.action, child.visits, child.reward, score))
 		if(score == bestScore):
 			bestChildren.append(child)
 		if(score > bestScore):
@@ -184,6 +204,7 @@ simulatedGame = Tictactoe()
 state = GameState()
 rootNode = Node(state)
 
+
 def main():
 	global state
 	global simulatedGame
@@ -197,13 +218,14 @@ def main():
 			print(asd.action)
 			state = simulatedGame.act(state,asd.action)
 		else:
-			print("Digite um local do tabuleiro:")
+			print("Digite um local do tabuleiro (jogadas válidas: {}):".format(state.actions))
 			asd = int(input(''))
 			state = simulatedGame.act(state,asd)
 		rootNode = Node(state)
 	simulatedGame = Tictactoe()
 	state = GameState()
 	rootNode = Node(state)
+
 
 if __name__ == '__main__':
 	main()
