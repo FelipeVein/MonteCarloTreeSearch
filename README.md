@@ -2,7 +2,7 @@
 
 ## Overview
 
-A simple python implementation of the Monte Carlo Tree Search algorithm applied to Tic-Tac-Toe.
+A simple python implementation of Monte Carlo Tree Search algorithm applied to Tic-Tac-Toe.
 
 
 
