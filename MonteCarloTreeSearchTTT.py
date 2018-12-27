@@ -184,9 +184,6 @@ simulatedGame = Tictactoe()
 state = GameState()
 rootNode = Node(state)
 
-if __name__ == '__main__':
-	main()
-
 def main():
 	global state
 	global simulatedGame
@@ -207,3 +204,6 @@ def main():
 	simulatedGame = Tictactoe()
 	state = GameState()
 	rootNode = Node(state)
+
+if __name__ == '__main__':
+	main()
