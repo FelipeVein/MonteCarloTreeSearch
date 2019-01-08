@@ -5,6 +5,7 @@
 
 import random
 import math
+import time
 
 class GameState():
 
@@ -55,7 +56,7 @@ class Tictactoe():
 			return state.state[1]# retorna 1 se for o player 1 (computador), -1 se for o player -1 (humano)
 		elif(state.state[2] == state.state[5] and state.state[2] == state.state[8] and state.state[2] != 0):
 			#win
-			return state.state[2] # retorna 1 se for o player 1 (computador), -1 se for o player -1 (humano)
+			return state.state[2]# retorna 1 se for o player 1 (computador), -1 se for o player -1 (humano)
 		elif(flag == 1):
 			#still not finished
 			return -2
@@ -86,12 +87,12 @@ class Tictactoe():
 
 class Node():
 	def __init__(self,state,parent=None,action=None):
-		self.visits = 1
+		self.visits = 0
 		self.reward = 0.
 		self.children = []
 		self.state = state
 		self.parent = parent
-		self.actions_to_be_explored = state.actions
+		self.actions_to_be_explored = state.actions[:]
 		self.action = action
 
 	def addChild(self,child):
@@ -109,7 +110,6 @@ class Node():
 			return False
 
 	def removeAction(self,action):
-		self.actions_to_be_explored = self.actions_to_be_explored[:]
 		self.actions_to_be_explored.remove(action)
 
 
@@ -154,7 +154,7 @@ def expand(node):
 
 
 
-def selectChild(node,C=10):
+def selectChild(node,C=1):
 	# Selecionar pela distribuicao de probabilidade do score
 	#scores = []
 	#scoret = 0
@@ -172,9 +172,12 @@ def selectChild(node,C=10):
 	bestScore = -100000.0
 	bestChildren = []
 	for child in node.children:
-		score = child.reward/float(child.visits) + C * math.sqrt(2.0*math.log(node.visits)/float(child.visits))
+		if(node.state.player == 1):
+			score = child.reward/float(child.visits) + C * math.sqrt(2.0*math.log(node.visits)/float(child.visits))
+		else:
+			score = -child.reward/float(child.visits) + C * math.sqrt(2.0*math.log(node.visits)/float(child.visits))
 		if(C == 0):
-			score = child.reward/float(child.visits)
+			#score = child.reward/float(child.visits)
 			print('acao: {} - visitas: {} - reward: {} - score: {}'.format(child.action, child.visits, child.reward, score))
 		if(score == bestScore):
 			bestChildren.append(child)
@@ -214,7 +217,9 @@ def main():
 		print(state.state[3:6])
 		print(state.state[6:10])
 		if(state.player == 1):
+			start = time.time()
 			asd = MCTS(rootNode)
+			print("Execution time: {}".format(time.time()-start))
 			print(asd.action)
 			state = simulatedGame.act(state,asd.action)
 		else:
